@@ -1,9 +1,10 @@
-const CACHE = "universal-hive-v1";
+const CACHE = "universal-hive-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./base-seed.js"
+  "./base-seed.js",
+  "./local-llm.js"
 ];
 
 self.addEventListener("install", (e) => {
