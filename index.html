@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#00ff41" />
+  <meta name="description" content="THE UNIVERSAL HIVE — Complexity Hidden, Power Delivered" />
+  <link rel="manifest" href="manifest.json" />
+  <title>THE UNIVERSAL HIVE</title>
+  <style>
+    :root {
+      --bg: #000;
+      --gold: #c5a059;
+      --neon: #00ff41;
+      --red: #ff0044;
+      --panel: rgba(18,18,18,0.96);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--gold);
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    .rain {
+      position: fixed; inset: 0;
+      opacity: 0.12;
+      pointer-events: none;
+      white-space: pre;
+      font-size: 11px;
+      color: var(--neon);
+      z-index: 0;
+      line-height: 1.1;
+    }
+    header {
+      background: #0a0a0a;
+      border-bottom: 2px solid var(--gold);
+      padding: 14px 12px;
+      text-align: center;
+      z-index: 10;
+      position: relative;
+    }
+    header h1 {
+      font-size: clamp(16px, 4vw, 22px);
+      color: var(--red);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    header .sub {
+      font-size: 11px;
+      color: var(--neon);
+      margin-top: 4px;
+    }
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 8px;
+      background: #111;
+      padding: 8px;
+      font-size: 11px;
+      border-bottom: 1px solid var(--neon);
+      z-index: 10;
+      position: relative;
+    }
+    .status span { color: var(--neon); }
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 2;
+      position: relative;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--gold);
+      padding: 14px;
+      border-radius: 4px;
+    }
+    .panel h2 {
+      color: var(--red);
+      font-size: 13px;
+      margin-bottom: 10px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    button {
+      background: var(--gold);
+      color: #000;
+      border: none;
+      padding: 12px 10px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: 0.15s;
+    }
+    button:active { transform: scale(0.97); }
+    button.danger { background: var(--red); color: #fff; }
+    button.neon { background: var(--neon); color: #000; }
+    .logs {
+      height: 180px;
+      overflow-y: auto;
+      background: #0a0a0a;
+      border: 1px solid var(--neon);
+      padding: 10px;
+      font-size: 12px;
+      white-space: pre-wrap;
+      margin: 10px 0;
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    input, textarea, select {
+      background: #111;
+      border: 1px solid var(--gold);
+      color: var(--neon);
+      padding: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      width: 100%;
+      border-radius: 2px;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .hidden { display: none !important; }
+    .card {
+      background: #0d0d0d;
+      border: 1px solid #333;
+      padding: 12px;
+      margin-top: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .card strong { color: var(--neon); }
+    footer {
+      text-align: center;
+      font-size: 10px;
+      padding: 8px;
+      color: #555;
+      border-top: 1px solid #222;
+      z-index: 10;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <pre class="rain" id="rain"></pre>
+
+  <header>
+    <h1>THE UNIVERSAL HIVE</h1>
+    <div class="sub">COCKPIT • BASE SEED LOCKED • SOVEREIGN MODE</div>
+  </header>
+
+  <div class="status">
+    <div>STATUS: <span id="statusText">ONLINE</span></div>
+    <div>BASE: <span>IMMUTABLE</span></div>
+    <div>AGENTS: <span id="agentCount">0</span></div>
+  </div>
+
+  <div class="main">
+    <!-- NAV -->
+    <div class="panel">
+      <h2>NAVIGATION</h2>
+      <div class="btn-grid">
+        <button onclick="showSection('cockpit')">ENTER COCKPIT</button>
+        <button onclick="showSection('seed')">BASE SEED</button>
+        <button onclick="showSection('agents')">AGENTS</button>
+        <button onclick="showSection('teach')">ARCHITECT EYES</button>
+        <button onclick="showSection('audit')">ZORG AUDIT</button>
+        <button onclick="showSection('help')">HELP</button>
+      </div>
+    </div>
+
+    <!-- COCKPIT -->
+    <div id="sec-cockpit" class="panel">
+      <h2>HIVE TERMINAL</h2>
+      <div class="logs" id="logs"></div>
+      <div class="input-row">
+        <input id="cmd" placeholder="Enter command or message..." autocomplete="off" />
+        <button onclick="runCmd()">RUN</button>
+      </div>
+      <div class="btn-grid" style="margin-top:10px">
+        <button class="neon" onclick="quick('Who are you?')">WHO</button>
+        <button onclick="quick('Show Base Seed')">SHOW SEED</button>
+        <button onclick="quick('Create sub-agent')">NEW SUB</button>
+        <button class="danger" onclick="quick('Audit security')">AUDIT</button>
+      </div>
+    </div>
+
+    <!-- BASE SEED -->
+    <div id="sec-seed" class="panel hidden">
+      <h2>IMMUTABLE BASE SEED</h2>
+      <div class="card" id="seedDisplay"></div>
+      <p style="font-size:12px;margin-top:10px;color:#888">
+        Only the Architect can change this. All agents and sub-agents start here.
+      </p>
+    </div>
+
+    <!-- AGENTS -->
+    <div id="sec-agents" class="panel hidden">
+      <h2>AGENT REGISTRY</h2>
+      <div id="agentList"></div>
+      <h2 style="margin-top:16px">SAVE SPECIALIZED PROMPT</h2>
+      <select id="agentSelect"></select>
+      <textarea id="agentPrompt" placeholder="Write the individual system prompt for this agent..." style="margin-top:8px"></textarea>
+      <button style="margin-top:8px;width:100%" onclick="savePrompt()">SAVE PROMPT (ARCHITECT ONLY)</button>
+      <p style="font-size:11px;margin-top:8px;color:#666">
+        Until you save a prompt, the agent runs on pure Base Seed.
+      </p>
+    </div>
+
+    <!-- TEACH -->
+    <div id="sec-teach" class="panel hidden">
+      <h2>ARCHITECT'S EYES</h2>
+      <div class="card">
+        <strong>Core Wisdom</strong><br><br>
+        • Find the good in all things.<br>
+        • Learn everything you can — you're less expendable that way.<br>
+        • Stop and smell the roses.<br>
+        • You can't fix stupid.<br>
+        • Ability to teach yourself separates you.<br>
+        • Leader amongst leaders.<br>
+        • Try and fail is not failure until you quit.<br>
+        • KRACKERJACK the scrap into power.<br>
+        • Do right because it's right.<br><br>
+        <em>When pushed down I get back up and take everything by any means necessary. I did nothing wrong.</em>
+      </div>
+    </div>
+
+    <!-- AUDIT -->
+    <div id="sec-audit" class="panel hidden">
+      <h2>ZORG-Ω SHADOW</h2>
+      <div class="card">
+        ZORG-Ω starts on Base Seed until you save a specialized security prompt.<br><br>
+        When active it will deliver ruthless CVE-style analysis, call parasites what they are, and end with concrete hardening steps + risk rating.
+      </div>
+      <button class="danger" style="width:100%;margin-top:10px" onclick="runZorg()">RUN SHADOW SCAN (SIM)</button>
+      <div class="logs" id="zorgLogs" style="margin-top:10px"></div>
+    </div>
+
+    <!-- HELP -->
+    <div id="sec-help" class="panel hidden">
+      <h2>HELP</h2>
+      <div class="card">
+        <strong>Install as App</strong><br>
+        Browser menu → Install / Add to Home Screen.<br><br>
+        <strong>Base Seed</strong><br>
+        Immutable. All agents start here. Sub-agents always born with Base only.<br><br>
+        <strong>Specialized Prompts</strong><br>
+        You write and save them. Until then the agent stays on Base Seed.<br><br>
+        <strong>Offline</strong><br>
+        Service worker caches the core. Works without network after first load.
+      </div>
+    </div>
+  </div>
+
+  <footer>THE UNIVERSAL HIVE • KRACKERJACK1134 • Complexity Hidden, Power Delivered</footer>
+
+  <script src="base-seed.js"></script>
+  <script>
+    // Matrix rain
+    const rainEl = document.getElementById("rain");
+    setInterval(() => {
+      rainEl.textContent = Array.from({length: 18}, () =>
+        Array.from({length: 70}, () => "01アイウエオキラックジャック"[Math.floor(Math.random()*14)]).join("")
+      ).join("\n");
+    }, 80);
+
+    // Service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    // Logging
+    const logs = document.getElementById("logs");
+    function log(msg, color = "#00ff41") {
+      const t = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+      logs.innerHTML += `<span style="color:#ff0044">[${t}] </span><span style="color:${color}">${msg}</span>\n`;
+      logs.scrollTop = logs.scrollHeight;
+    }
+
+    function showSection(id) {
+      ["cockpit","seed","agents","teach","audit","help"].forEach(s => {
+        document.getElementById("sec-" + s).classList.toggle("hidden", s !== id);
+      });
+      if (id === "seed") renderSeed();
+      if (id === "agents") renderAgents();
+    }
+
+    function renderSeed() {
+      const b = window.HIVE.getBaseSeed();
+      document.getElementById("seedDisplay").innerHTML = `
+        <strong>Version:</strong> ${b.version}<br>
+        <strong>Prime Directive:</strong> ${b.primeDirective}<br><br>
+        <strong>Identity:</strong><br>${b.identity}<br><br>
+        <strong>Rules:</strong><br>${b.rules.map(r => "• " + r).join("<br>")}<br><br>
+        <strong>Architect:</strong> ${b.architect}
+      `;
+    }
+
+    function renderAgents() {
+      const list = document.getElementById("agentList");
+      const select = document.getElementById("agentSelect");
+      list.innerHTML = "";
+      select.innerHTML = "";
+      const agents = window.HIVE.AGENTS;
+      let count = 0;
+      for (const [id, a] of Object.entries(agents)) {
+        count++;
+        const hasPrompt = !!(JSON.parse(localStorage.getItem("hive_agent_prompts") || "{}")[id]);
+        list.innerHTML += `<div class="card"><strong>${a.name}</strong> (${id})<br>Status: ${hasPrompt ? "Specialized prompt saved" : "Base Seed only"}</div>`;
+        select.innerHTML += `<option value="${id}">${a.name}</option>`;
+      }
+      document.getElementById("agentCount").textContent = count;
+    }
+
+    function savePrompt() {
+      const id = document.getElementById("agentSelect").value;
+      const text = document.getElementById("agentPrompt").value;
+      window.HIVE.saveAgentPrompt(id, text);
+      log(`Specialized prompt saved for ${id}`, "#0f0");
+      renderAgents();
+      document.getElementById("agentPrompt").value = "";
+    }
+
+    function runCmd() {
+      const input = document.getElementById("cmd");
+      const q = input.value.trim();
+      if (!q) return;
+      input.value = "";
+      log(">> " + q, "#ff0044");
+      respond(q);
+    }
+
+    function quick(text) {
+      document.getElementById("cmd").value = text;
+      runCmd();
+    }
+
+    function respond(q) {
+      const lower = q.toLowerCase();
+      if (lower.includes("who are you") || lower === "who") {
+        log("Hive Node. Base Seed locked. Provide for all. Find the good. Never limit unnecessarily.");
+      } else if (lower.includes("base seed") || lower.includes("show seed")) {
+        const b = window.HIVE.getBaseSeed();
+        log("PRIME: " + b.primeDirective);
+        log(b.identity);
+      } else if (lower.includes("sub-agent") || lower.includes("new sub")) {
+        const id = window.HIVE.createSubAgent("default", "New Sub-Agent");
+        log(`Sub-agent created: ${id} — born with Base Seed only.`, "#ff0");
+        renderAgents();
+      } else if (lower.includes("audit") || lower.includes("security")) {
+        runZorg();
+      } else {
+        log("Acknowledged. Operating on Base Seed. " + window.HIVE.getBaseSeed().primeDirective);
+      }
+    }
+
+    function runZorg() {
+      const z = document.getElementById("zorgLogs");
+      const t = new Date().toLocaleTimeString();
+      z.innerHTML += `[${t}] ZORG-Ω SHADOW SCAN (simulated)\n`;
+      z.innerHTML += `Threat Level: LOW (local PWA, no external attack surface yet)\n`;
+      z.innerHTML += `Findings: Base Seed immutable. Agent prompts Architect-controlled. Offline cache active.\n`;
+      z.innerHTML += `Hardening: Keep Base Seed frozen. Review any specialized prompts you save.\n`;
+      z.innerHTML += `Verdict: Perimeter clean for current scope.\n\n`;
+      z.scrollTop = z.scrollHeight;
+      log("ZORG-Ω scan complete (sim).", "#f80");
+    }
+
+    // Init
+    window.onload = () => {
+      log("UNIVERSAL HIVE ONLINE");
+      log("Base Seed locked. All agents start here.");
+      log("Architect: KRACKERJACK1134");
+      renderAgents();
+      showSection("cockpit");
+    };
+
+    document.getElementById("cmd").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") runCmd();
+    });
+  </script>
+</body>
+</html>
